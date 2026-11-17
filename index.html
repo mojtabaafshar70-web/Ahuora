@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>تست برنامه</title>
+</head>
+<body style="background:#111; color:white; font-family:Tahoma; padding:20px; text-align:center;">
+
+    <h1 style="color:#00f0d0;">سلام مجتبی!</h1>
+    <p>اگر این متن را می‌بینی، یعنی کدها درست آپلود شده‌اند.</p>
+    
+    <button onclick="testBtn()" style="padding:15px; background:#00f0d0; border:none; border-radius:8px; font-size:18px; margin-top:20px; width:100%;">تست دکمه</button>
+    
+    <div id="result" style="margin-top:20px; color:yellow; font-size:20px;"></div>
+
+    <script>
+        function testBtn() {
+            document.getElementById('result').innerText = "دکمه کار کرد! کدها سالم هستند.";
+        }
+    </script>
+</body>
+</html>
