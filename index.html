@@ -3,21 +3,213 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <title>تست برنامه</title>
-</head>
-<body style="background:#111; color:white; font-family:Tahoma; padding:20px; text-align:center;">
-
-    <h1 style="color:#00f0d0;">سلام مجتبی!</h1>
-    <p>اگر این متن را می‌بینی، یعنی کدها درست آپلود شده‌اند.</p>
-    
-    <button onclick="testBtn()" style="padding:15px; background:#00f0d0; border:none; border-radius:8px; font-size:18px; margin-top:20px; width:100%;">تست دکمه</button>
-    
-    <div id="result" style="margin-top:20px; color:yellow; font-size:20px;"></div>
-
-    <script>
-        function testBtn() {
-            document.getElementById('result').innerText = "دکمه کار کرد! کدها سالم هستند.";
+    <meta name="theme-color" content="#0f5e63">
+    <title>ابزارآلات مجتبی | اهورا</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root{
+            --bg:#0d1117; --card:#161b22; --tx:#e6edf3; --mu:#8b949e; 
+            --pr:#00f0d0; --c:#0f6a70; --bd:#30363d; --rd:#ff7b72; --gn:#3fb950;
+            --glow: 0 0 10px rgba(0,240,208,0.4), inset 0 0 10px rgba(0,240,208,0.1);
+            --fr:repeating-linear-gradient(90deg,rgba(0,240,208,.4) 0 2px,transparent 2px 6px,rgba(0,240,208,.2) 6px 8px,transparent 8px 14px);
         }
-    </script>
+        *{box-sizing:border-box; font-family: Tahoma, sans-serif;}
+        body{margin:0; background:var(--bg); color:var(--tx); font-size:15px; line-height:1.7; padding-bottom:20px;
+             background-image: radial-gradient(circle at 50% 0%, rgba(0,240,208,0.05) 0%, transparent 50%);}
+        
+        /* هدر نئونی */
+        header{position:relative; background:linear-gradient(180deg, #1a252f, var(--card)); color:#fff; padding:15px 20px; 
+               border-bottom:3px solid var(--pr); display:flex; justify-content:space-between; align-items:center;
+               box-shadow: 0 4px 15px rgba(0,240,208,0.2); display:none;}
+        header::after{content:''; position:absolute; inset-inline:0; bottom:-6px; height:6px; background:var(--fr);}
+        
+        .app-title{font-size:18px; font-weight:bold; text-shadow:0 0 8px rgba(0,240,208,0.6);}
+        
+        main{padding:20px 15px; max-width:600px; margin:auto;}
+        
+        .card{background:var(--card); border:1px solid var(--bd); border-top:3px solid var(--pr); 
+              border-radius:12px; padding:20px; margin-bottom:20px; box-shadow: var(--glow);}
+        
+        h2, h3 {text-align:center; color:var(--pr); margin-top:0; text-shadow:0 0 8px rgba(0,240,208,0.5);}
+        
+        input, select {width:100%; padding:12px; margin:8px 0; background:#0d1117; border:1px solid var(--bd); 
+                       border-radius:8px; color:var(--tx); font-size:15px; transition:0.3s;}
+        input:focus {outline:none; border-color:var(--pr); box-shadow:0 0 8px rgba(0,240,208,0.3);}
+        
+        button {width:100%; padding:14px; margin:10px 0; border:none; border-radius:8px; 
+                background:var(--c); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s; font-family:inherit;}
+        button:hover {background:var(--pr); color:#000; box-shadow:0 0 15px var(--pr);}
+        
+        button.sec {background:transparent; border:1px solid var(--pr); color:var(--pr);}
+        button.sec:hover {background:rgba(0,240,208,0.1); box-shadow:none;}
+        
+        .msg {padding:10px; border-radius:8px; text-align:center; margin-top:10px; display:none;}
+        .msg.err {display:block; background:rgba(255,123,114,0.1); border:1px solid var(--rd); color:var(--rd);}
+        .msg.ok {display:block; background:rgba(63,185,80,0.1); border:1px solid var(--gn); color:var(--gn);}
+        
+        .modal {position:fixed; inset:0; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; padding:20px; z-index:100;}
+        .modal .card {max-width:400px; width:100%; text-align:center;}
+    </style>
+</head>
+<body>
+
+<!-- مودال خوش‌آمدگویی -->
+<div id="welcome-modal" class="modal">
+    <div class="card">
+        <h2 style="font-size:22px; margin-bottom:20px;">پخش قفل و یراق اهورا</h2>
+        <p style="color:var(--mu); font-size:16px; line-height:2;">از اعتماد و همراهی شما سپاسگزاریم؛<br>امید است این خرید آغاز ارتباطی طولانی‌مدت باشد.</p>
+        <button onclick="document.getElementById('welcome-modal').style.display='none'; document.querySelector('header').style.display='flex'; checkSession();">ادامه</button>
+    </div>
+</div>
+
+<header id="main-header">
+    <div class="app-title">ابزارآلات اهورا</div>
+    <div id="header-user" style="font-size:12px; color:var(--mu);"></div>
+</header>
+
+<main id="main-content">
+    <!-- محتوا توسط جاوا اسکریپت لود می‌شود -->
+</main>
+
+<script>
+    const SUPABASE_URL = 'https://ickkglmeyhzoibskonxz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f'; 
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const S = { view: 'choice', role: null, user: null };
+
+    async function checkSession() {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                S.user = session.user;
+                const { data: profile } = await supabase.from('customers').select('*').eq('auth_id', S.user.id).single();
+                if (profile) {
+                    S.user = { ...S.user, ...profile };
+                    S.role = profile.role;
+                    S.view = (S.role === 'admin') ? 'admin' : 'customer';
+                } else { S.view = 'choice'; }
+            } else { S.view = 'choice'; }
+        } catch(e) { console.error(e); S.view = 'choice'; }
+        render();
+    }
+
+    function render() {
+        const main = document.getElementById('main-content');
+        const headerUser = document.getElementById('header-user');
+        
+        if (S.view === 'choice') {
+            headerUser.innerHTML = '';
+            main.innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <h2>خوش آمدید</h2>
+                    <p style="color:var(--mu); margin-bottom:20px;">برای ادامه نوع ورود خود را انتخاب کنید.</p>
+                    <button onclick="openLogin('admin')">ورود / ثبت‌نام مدیر</button>
+                    <button class="sec" onclick="openLogin('customer')">ورود / ثبت‌نام مشتری</button>
+                </div>
+            `;
+        } 
+        else if (S.view === 'login') {
+            main.innerHTML = `
+                <div class="card">
+                    <h2>${S.role === 'admin' ? 'مدیر' : 'مشتری'}</h2>
+                    <input id="username" placeholder="نام کاربری (شماره موبایل)" type="tel">
+                    <input id="password" placeholder="رمز عبور" type="password">
+                    <button onclick="doLogin()" id="btn-login">ورود / ثبت‌نام خودکار</button>
+                    <div id="login-msg" class="msg"></div>
+                    <button class="sec" onclick="S.view='choice'; render()" style="margin-top:15px;">بازگشت</button>
+                </div>
+            `;
+        }
+        else if (S.view === 'admin' || S.view === 'customer') {
+            headerUser.innerHTML = `${S.user.name || S.user.phone} | <a href="#" onclick="doLogout(event)" style="color:var(--rd); text-decoration:none;">خروج</a>`;
+            main.innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <h2>پنل ${S.view === 'admin' ? 'مدیریت' : 'مشتری'}</h2>
+                    <p style="color:var(--gn)">شما با موفقیت وارد شدید.</p>
+                    <p style="color:var(--mu)">(بخش‌های بعدی در حال ساخت هستند...)</p>
+                    <button onclick="doLogout(event)" style="background:var(--rd); margin-top:20px;">خروج از حساب</button>
+                </div>
+            `;
+        }
+    }
+
+    function openLogin(role) {
+        S.role = role;
+        S.view = 'login';
+        render();
+    }
+
+    async function doLogin() {
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value;
+        const btn = document.getElementById('btn-login');
+        const msg = document.getElementById('login-msg');
+        
+        if (!user || !pass) { showMsg(msg, 'لطفا اطلاعات را کامل وارد کنید', 'err'); return; }
+        if (pass.length < 6) { showMsg(msg, 'رمز عبور باید حداقل ۶ کاراکتر باشد', 'err'); return; }
+
+        btn.innerText = 'در حال بررسی...';
+        btn.disabled = true;
+        msg.className = 'msg';
+
+        try {
+            let email = user.includes('@') ? user : user + '@ahoura.com';
+            
+            let { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password: pass });
+
+            if (authError && authError.message.includes('Invalid login credentials')) {
+                btn.innerText = 'در حال ثبت‌نام...';
+                let { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password: pass });
+                
+                if (signUpError) throw new Error(signUpError.message);
+                
+                await supabase.from('customers').insert([{
+                    auth_id: signUpData.user.id,
+                    username: user,
+                    phone: user,
+                    role: (S.role === 'admin' && user === '09120000000') ? 'admin' : 'customer',
+                    name: user
+                }]);
+                
+                authData = signUpData;
+                showMsg(msg, 'حساب شما ساخته شد و وارد شدید.', 'ok');
+            } else if (authError) {
+                throw new Error(authError.message);
+            }
+
+            S.user = authData.user;
+            const { data: profile } = await supabase.from('customers').select('*').eq('auth_id', S.user.id).single();
+            
+            if (profile) {
+                S.user = { ...S.user, ...profile };
+                S.role = profile.role;
+            } else {
+                S.role = (S.role === 'admin') ? 'admin' : 'customer';
+            }
+            
+            S.view = (S.role === 'admin') ? 'admin' : 'customer';
+            render();
+
+        } catch (err) {
+            showMsg(msg, 'خطا: ' + err.message, 'err');
+            btn.innerText = 'ورود / ثبت‌نام خودکار';
+            btn.disabled = false;
+        }
+    }
+
+    async function doLogout(e) {
+        if(e) e.preventDefault();
+        await supabase.auth.signOut();
+        S.view = 'choice';
+        S.user = null;
+        render();
+    }
+
+    function showMsg(el, text, type) {
+        el.innerText = text;
+        el.className = 'msg ' + type;
+    }
+</script>
 </body>
 </html>
