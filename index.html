@@ -2,65 +2,40 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>ابزارآلات اهورا</title>
+    <!-- لود کتابخانه Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root{ --bg:#0d1117; --card:#161b22; --tx:#e6edf3; --mu:#8b949e; --pr:#00f0d0; --c:#0f6a70; --bd:#30363d; --rd:#ff7b72; --gn:#3fb950; --glow: 0 0 10px rgba(0,240,208,0.4); }
+        *{box-sizing:border-box; font-family:Tahoma, sans-serif;}
+        body{margin:0; background:var(--bg); color:var(--tx); font-size:15px; line-height:1.7;}
+        header{background:#1a252f; padding:15px 20px; border-bottom:3px solid var(--pr); display:flex; justify-content:space-between;}
+        .app-title{color:#fff; font-weight:bold;}
+        main{padding:20px 15px; max-width:600px; margin:auto;}
+        .card{background:var(--card); border:1px solid var(--bd); border-top:3px solid var(--pr); border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:var(--glow);}
+        h2{text-align:center; color:var(--pr);}
+        input, select {width:100%; padding:12px; margin:8px 0; background:#0d1117; border:1px solid var(--bd); border-radius:8px; color:var(--tx); font-size:15px;}
+        button {width:100%; padding:14px; margin:10px 0; border:none; border-radius:8px; background:var(--c); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;}
+        button:hover {background:var(--pr); color:#000;}
+        button.sec {background:transparent; border:1px solid var(--pr); color:var(--pr);}
+        .msg {padding:10px; border-radius:8px; text-align:center; margin-top:10px; display:none;}
+        .msg.err {display:block; background:rgba(255,123,114,0.1); border:1px solid var(--rd); color:var(--rd);}
+        .msg.ok {display:block; background:rgba(63,185,80,0.1); border:1px solid var(--gn); color:var(--gn);}
+    </style>
 </head>
-<body style="background:#111; color:white; font-family:Tahoma; padding:20px; text-align:center;">
+<body>
 
-    <h2 style="color:#00f0d0;">تست نهایی</h2>
-    
-    <div id="status" style="color:yellow; margin:20px 0;">در حال اتصال به دیتابیس...</div>
-    
-    <div id="login-box" style="display:none; max-width:300px; margin:auto;">
-        <input id="phone" placeholder="09120000000" style="width:100%; padding:10px; margin:5px 0; border-radius:5px; border:none;">
-        <input id="pass" placeholder="رمز عبور (123456)" type="password" style="width:100%; padding:10px; margin:5px 0; border-radius:5px; border:none;">
-        <button onclick="doLogin()" style="width:100%; padding:15px; background:#00f0d0; border:none; border-radius:5px; font-weight:bold; margin-top:10px;">ورود / ثبت‌نام</button>
-    </div>
-    
-    <div id="msg" style="margin-top:20px; font-weight:bold;"></div>
+<header id="main-header">
+    <div class="app-title">ابزارآلات اهورا</div>
+    <div id="header-user" style="color:var(--mu);"></div>
+</header>
 
-    <script>
-        // تست لود شدن کتابخانه
-        if (typeof window.supabase === 'undefined') {
-            document.getElementById('status').innerText = "خطا: کتابخانه Supabase لود نشد!";
-            document.getElementById('status').style.color = "red";
-        } else {
-            document.getElementById('status').innerText = "دیتابیس متصل است. آماده تست.";
-            document.getElementById('status').style.color = "#3fb950";
-            document.getElementById('login-box').style.display = "block";
+<main id="main-content">
+    <!-- محتوا توسط app.js ساخته می‌شود -->
+</main>
 
-            const db = window.supabase.createClient('https://ickkglmeyhzoibskonxz.supabase.co', 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f');
-
-            window.doLogin = async function() {
-                const user = document.getElementById('phone').value;
-                const pass = document.getElementById('pass').value;
-                const msg = document.getElementById('msg');
-                
-                msg.innerText = "در حال ارسال...";
-                msg.style.color = "yellow";
-                
-                let email = user + '@ahoura.com';
-                let { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-                
-                if (error && error.message.includes('Invalid login credentials')) {
-                    msg.innerText = "در حال ساخت حساب...";
-                    let { data: signUpData, error: signUpError } = await db.auth.signUp({ email, password: pass });
-                    if (signUpError) {
-                        msg.innerText = "خطا: " + signUpError.message;
-                        msg.style.color = "red";
-                    } else {
-                        msg.innerText = "حساب ساخته شد و وارد شدید!";
-                        msg.style.color = "#3fb950";
-                    }
-                } else if (error) {
-                    msg.innerText = "خطا: " + error.message;
-                    msg.style.color = "red";
-                } else {
-                    msg.innerText = "ورود موفق!";
-                    msg.style.color = "#3fb950";
-                }
-            };
-        }
-    </script>
+<!-- لود فایل جاوا اسکریپت -->
+<script src="app.js"></script>
 </body>
 </html>
