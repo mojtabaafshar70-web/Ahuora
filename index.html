@@ -2,67 +2,161 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>ابزارآلات اهورا</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root{--bg:#ece4d2;--card:#f8f2e3;--tx:#2a2216;--mu:#7b6a4d;--pr:#0f5e63;--neon:#00f0d0;--c:#0f6a70;--bd:#d2c3a1;--rd:#b3261e;--gn:#1b7a46;--fr:repeating-linear-gradient(90deg,rgba(184,137,58,.55) 0 3px,transparent 3px 7px,rgba(184,137,58,.3) 7px 9px,transparent 9px 16px)}
-        body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.7 Tahoma,sans-serif;}
+        *{box-sizing:border-box}
+        body{margin:0; background:var(--bg); color:var(--tx); font:15px/1.7 Tahoma,sans-serif;}
+        
         header{position:relative;background:var(--fr),linear-gradient(var(--c),#073337);background-size:100% 6px,100% 100%;background-repeat:repeat-x,no-repeat;background-position:bottom,0 0;border-bottom:4px solid var(--neon);color:#fff;padding:15px;text-align:center;font-weight:bold;}
         header::after{content:'';position:absolute;inset-inline:0;bottom:0;height:13px;background:var(--neon);opacity:.9}
-        .card{background:var(--card);border:1.5px solid var(--neon);border-top:3px solid var(--neon);border-radius:8px;padding:20px;margin:20px auto;max-width:400px;text-align:center;box-shadow:0 0 10px var(--neon);}
-        h2{color:var(--pr);}
-        input, button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid var(--bd);font-family:inherit;font-size:15px;}
+        
+        nav{display:flex; overflow-x:auto; background:var(--card); border-bottom:3px double var(--neon); margin-bottom:20px;}
+        nav button{flex:1; padding:10px; border:none; background:none; color:var(--mu); font-size:14px; cursor:pointer; font-family:inherit;}
+        nav button.active{color:var(--pr); font-weight:bold; border-bottom:3px solid var(--pr);}
+
+        .card{background:var(--card);border:1.5px solid var(--neon);border-top:3px solid var(--neon);border-radius:8px;padding:15px;margin:15px auto;max-width:500px;box-shadow:0 0 10px var(--neon);}
+        h2, h3 {color:var(--pr); margin-top:0; text-align:center;}
+        
+        input, button, select{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid var(--bd);font-family:inherit;font-size:15px;}
         button{background:var(--c);color:#fff;font-weight:bold;cursor:pointer;border:none;box-shadow:0 0 8px rgba(0,240,208,0.3);}
         button:hover{background:var(--pr);}
         button.sec{background:transparent;border:1px solid var(--neon);color:var(--pr);}
+        
         .hidden{display:none !important;}
+        .row{display:flex; gap:10px;}
+        .row > * {margin: 0; flex: 1;}
+        
+        /* کارت محصول */
+        .p-card{border:1px solid var(--bd); border-radius:8px; padding:10px; margin-bottom:10px; background:#fff;}
+        .p-title{font-weight:bold; color:var(--pr); font-size:16px;}
+        .p-price{color:var(--gn); font-weight:bold;}
     </style>
 </head>
 <body>
 
-<header>پخش قفل و یراق اهورا</header>
+<header id="main-header" class="hidden">پخش قفل و یراق اهورا</header>
 
-<!-- صفحه خوش‌آمدگویی -->
-<div id="page-welcome" class="card">
-    <h2 style="color:var(--pr)">ابزارآلات اهورا</h2>
-    <p style="color:var(--mu); font-size:16px;">از اعتماد و همراهی شما سپاسگزاریم.<br>امید است این خرید آغاز ارتباطی طولانی‌مدت باشد.</p>
-    <button onclick="showPage('choice')">ادامه</button>
+<nav id="main-nav" class="hidden">
+    <button id="nav-products" class="active" onclick="changeTab('products')">محصولات</button>
+    <button id="nav-orders" onclick="changeTab('orders')">سفارش‌ها</button>
+</nav>
+
+<div id="app">
+    <!-- صفحه خوش‌آمدگویی -->
+    <div id="page-welcome" class="card">
+        <h2 style="color:var(--pr)">ابزارآلات اهورا</h2>
+        <p style="color:var(--mu); font-size:16px;">از اعتماد و همراهی شما سپاسگزاریم.</p>
+        <button onclick="showPage('choice')">ادامه</button>
+    </div>
+
+    <!-- صفحه انتخاب پنل -->
+    <div id="page-choice" class="card hidden">
+        <h2 style="color:var(--pr)">خوش آمدید</h2>
+        <button onclick="openLogin('admin')">ورود / ثبت‌نام مدیر</button>
+        <button class="sec" onclick="openLogin('customer')">ورود / ثبت‌نام مشتری</button>
+    </div>
+
+    <!-- صفحه لاگین -->
+    <div id="page-login" class="card hidden">
+        <h2 id="login-title" style="color:var(--pr)">ورود</h2>
+        <input id="login-phone" placeholder="شماره موبایل" type="tel">
+        <input id="login-pass" placeholder="رمز عبور" type="password">
+        <button onclick="doLogin()" id="btn-login">ورود / ثبت‌نام</button>
+        <div id="login-msg" style="margin-top:10px; font-weight:bold;"></div>
+        <button class="sec" onclick="showPage('choice')" style="margin-top:20px;">بازگشت</button>
+    </div>
+
+    <!-- صفحه پنل -->
+    <div id="page-panel" class="hidden">
+        <div id="tab-content" style="padding:15px; max-width:600px; margin:auto;">
+            <!-- محتوای تب ها اینجا میاد -->
+        </div>
+    </div>
 </div>
 
-<!-- صفحه انتخاب پنل -->
-<div id="page-choice" class="card hidden">
-    <h2 style="color:var(--pr)">خوش آمدید</h2>
-    <p style="color:var(--mu)">نوع ورود خود را انتخاب کنید</p>
-    <button onclick="openLogin('admin')">ورود / ثبت‌نام مدیر</button>
-    <button class="sec" onclick="openLogin('customer')">ورود / ثبت‌نام مشتری</button>
-</div>
-
-<!-- صفحه لاگین (با فرم واقعی) -->
-<div id="page-login" class="card hidden">
-    <h2 id="login-title" style="color:var(--pr)">ورود</h2>
-    <input id="login-phone" placeholder="شماره موبایل (0912...)" type="tel">
-    <input id="login-pass" placeholder="رمز عبور" type="password">
-    <button onclick="doLogin()" id="btn-login">ورود / ثبت‌نام</button>
-    <div id="login-msg" style="margin-top:10px; font-weight:bold;"></div>
-    <button class="sec" onclick="showPage('choice')" style="margin-top:20px;">بازگشت</button>
-</div>
-
-<!-- صفحه پنل (بعد از لاگین) -->
-<div id="page-panel" class="card hidden">
-    <h2 id="panel-title" style="color:var(--pr)">پنل</h2>
-    <p style="color:var(--gn)">شما با موفقیت وارد شدید!</p>
-    <p style="color:var(--mu)">(بخش‌های بعدی در حال ساخت است)</p>
-    <button onclick="doLogout()" style="background:var(--rd); margin-top:20px;">خروج</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     const db = supabase.createClient('https://ickkglmeyhzoibskonxz.supabase.co', 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f');
     let currentRole = 'admin';
 
     function showPage(pageName) {
-        document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
-        document.getElementById('page-' + pageName).classList.remove('hidden');
+        document.querySelectorAll('.card, #page-panel').forEach(el => el.classList.add('hidden'));
+        if(pageName === 'panel') {
+            document.getElementById('page-panel').classList.remove('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('main-nav').classList.remove('hidden');
+            changeTab('products');
+        } else {
+            document.getElementById('page-' + pageName).classList.remove('hidden');
+            if(pageName !== 'panel') {
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('main-nav').classList.add('hidden');
+            }
+        }
+    }
+
+    function changeTab(tab) {
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('nav-'+tab).classList.add('active');
+        const content = document.getElementById('tab-content');
+        
+        if(tab === 'products') {
+            content.innerHTML = `
+                <div class="card">
+                    <h3>افزودن محصول</h3>
+                    <input id="p-name" placeholder="نام محصول">
+                    <div class="row">
+                        <input id="p-price" placeholder="قیمت فروش" type="number">
+                        <input id="p-stock" placeholder="موجودی" type="number">
+                    </div>
+                    <button onclick="saveProduct()">ذخیره محصول</button>
+                    <div id="p-msg" style="text-align:center; margin-top:10px;"></div>
+                </div>
+                <h3>لیست محصولات</h3>
+                <div id="products-list"></div>
+            `;
+            loadProducts();
+        } else {
+            content.innerHTML = `<div class="card" style="text-align:center;"><h3>بخش ${tab}</h3><p>به زودی...</p></div>`;
+        }
+    }
+
+    async function loadProducts() {
+        const list = document.getElementById('products-list');
+        const { data } = await db.from('products').select('*').order('id', {ascending: false});
+        if(!data || data.length === 0) {
+            list.innerHTML = '<div class="card">هیچ محصولی ثبت نشده است.</div>';
+            return;
+        }
+        list.innerHTML = data.map(p => `
+            <div class="card p-card">
+                <div class="p-title">${p.name}</div>
+                <div class="p-price">${p.price.toLocaleString()} تومان</div>
+                <div style="font-size:12px; color:#888;">موجودی: ${p.stock} عدد</div>
+            </div>
+        `).join('');
+    }
+
+    async function saveProduct() {
+        const name = document.getElementById('p-name').value;
+        const price = document.getElementById('p-price').value;
+        const stock = document.getElementById('p-stock').value;
+        const msg = document.getElementById('p-msg');
+
+        if(!name || !price) { msg.innerText = 'نام و قیمت الزامی است'; msg.style.color = 'red'; return; }
+
+        msg.innerText = 'در حال ذخیره...'; msg.style.color = 'var(--pr)';
+
+        const { error } = await db.from('products').insert([{name, price, stock}]);
+        if(error) {
+            msg.innerText = error.message; msg.style.color = 'red';
+        } else {
+            msg.innerText = 'ثبت شد!'; msg.style.color = 'green';
+            document.getElementById('p-name').value = '';
+            loadProducts();
+        }
     }
 
     function openLogin(role) {
@@ -79,48 +173,29 @@
         const btn = document.getElementById('btn-login');
 
         if(!phone || !pass) { msg.innerText = 'اطلاعات را کامل وارد کنید'; msg.style.color = 'red'; return; }
-        if(pass.length < 6) { msg.innerText = 'رمز حداقل ۶ کاراکتر'; msg.style.color = 'red'; return; }
-
-        btn.innerText = 'در حال بررسی...';
-        btn.disabled = true;
-        msg.innerText = '';
+        
+        btn.innerText = 'در حال بررسی...'; btn.disabled = true; msg.innerText = '';
 
         try {
             let email = phone + '@ahoura.com';
             let { data: authData, error: authError } = await db.auth.signInWithPassword({ email, password: pass });
 
             if (authError && authError.message.includes('Invalid login credentials')) {
-                btn.innerText = 'در حال ثبت‌نام...';
                 let { data: signUpData, error: signUpError } = await db.auth.signUp({ email, password: pass });
-                
                 if (signUpError) throw new Error(signUpError.message);
-                
                 await db.from('customers').insert([{
                     auth_id: signUpData.user.id, username: phone, phone: phone,
                     role: (currentRole === 'admin' && phone === '09120000000') ? 'admin' : 'customer',
                     name: phone
                 }]);
                 authData = signUpData;
-                msg.innerText = 'حساب ساخته شد!';
-                msg.style.color = 'green';
-            } else if (authError) {
-                throw new Error(authError.message);
-            }
+            } else if (authError) { throw new Error(authError.message); }
 
-            document.getElementById('panel-title').innerText = currentRole === 'admin' ? 'پنل مدیریت' : 'پنل مشتری';
             showPage('panel');
-
         } catch (err) {
-            msg.innerText = err.message;
-            msg.style.color = 'red';
-            btn.innerText = 'ورود / ثبت‌نام';
-            btn.disabled = false;
+            msg.innerText = err.message; msg.style.color = 'red';
+            btn.innerText = 'ورود / ثبت‌نام'; btn.disabled = false;
         }
-    }
-
-    async function doLogout() {
-        await db.auth.signOut();
-        showPage('welcome');
     }
 </script>
 </body>
