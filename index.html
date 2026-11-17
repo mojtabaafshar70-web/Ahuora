@@ -14,8 +14,8 @@
         main{padding:20px 15px; max-width:600px; margin:auto;}
         .card{background:var(--card); border:1px solid var(--bd); border-top:3px solid var(--pr); border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:var(--glow);}
         h2{text-align:center; color:var(--pr);}
-        input, select {width:100%; padding:12px; margin:8px 0; background:#0d1117; border:1px solid var(--bd); border-radius:8px; color:var(--tx); font-size:15px;}
-        button {width:100%; padding:14px; margin:10px 0; border:none; border-radius:8px; background:var(--c); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;}
+        input {width:100%; padding:12px; margin:8px 0; background:#0d1117; border:1px solid var(--bd); border-radius:8px; color:var(--tx); font-size:15px;}
+        button {width:100%; padding:14px; margin:10px 0; border:none; border-radius:8px; background:var(--c); color:#fff; font-size:16px; font-weight:bold; cursor:pointer;}
         button:hover {background:var(--pr); color:#000;}
         button.sec {background:transparent; border:1px solid var(--pr); color:var(--pr);}
         .msg {padding:10px; border-radius:8px; text-align:center; margin-top:10px; display:none;}
@@ -24,157 +24,8 @@
     </style>
 </head>
 <body>
-
-<header id="main-header">
-    <div class="app-title">ابزارآلات اهورا</div>
-    <div id="header-user" style="color:var(--mu);"></div>
-</header>
-
-<main id="main-content"></main>
-
-<script>
-    // تنظیمات
-    const SUPABASE_URL = 'https://ickkglmeyhzoibskonxz.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f'; 
-    const S = { view: 'welcome', role: null, user: null };
-    let supabase;
-
-    // شروع
-    window.onload = function() {
-        if (typeof window.supabase === 'undefined') {
-            document.getElementById('main-content').innerHTML = '<div class="card" style="color:red">خطا: اینترنت وصل نیست یا کتابخانه لود نشد.</div>';
-            return;
-        }
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                S.user = session.user;
-                supabase.from('customers').select('*').eq('auth_id', S.user.id).single().then(({ data: profile }) => {
-                    if (profile) {
-                        S.user = { ...S.user, ...profile };
-                        S.role = profile.role;
-                        S.view = (S.role === 'admin') ? 'admin' : 'customer';
-                    }
-                    render();
-                });
-            } else { render(); }
-        });
-    };
-
-    // نمایش صفحات
-    function render() {
-        const main = document.getElementById('main-content');
-        const headerUser = document.getElementById('header-user');
-        
-        if (S.view === 'welcome') {
-            main.innerHTML = `
-                <div class="card" style="text-align:center; margin-top:50px;">
-                    <h2>پخش قفل و یراق اهورا</h2>
-                    <p style="color:var(--mu); font-size:16px; line-height:2;">از اعتماد و همراهی شما سپاسگزاریم؛<br>امید است این خرید آغاز ارتباطی طولانی‌مدت باشد.</p>
-                    <button onclick="S.view='choice'; render()">ادامه</button>
-                </div>`;
-        }
-        else if (S.view === 'choice') {
-            main.innerHTML = `
-                <div class="card" style="text-align:center;">
-                    <h2>خوش آمدید</h2>
-                    <p style="color:var(--mu); margin-bottom:20px;">نوع ورود خود را انتخاب کنید.</p>
-                    <button onclick="openLogin('admin')">ورود / ثبت‌نام مدیر</button>
-                    <button class="sec" onclick="openLogin('customer')">ورود / ثبت‌نام مشتری</button>
-                </div>`;
-        } 
-        else if (S.view === 'login') {
-            main.innerHTML = `
-                <div class="card">
-                    <h2>${S.role === 'admin' ? 'مدیر' : 'مشتری'}</h2>
-                    <input id="username" placeholder="شماره موبایل" type="tel">
-                    <input id="password" placeholder="رمز عبور" type="password">
-                    <button onclick="doLogin()" id="btn-login">ورود / ثبت‌نام خودکار</button>
-                    <div id="login-msg" class="msg"></div>
-                    <button class="sec" onclick="S.view='choice'; render()" style="margin-top:15px;">بازگشت</button>
-                </div>`;
-        }
-        else if (S.view === 'admin' || S.view === 'customer') {
-            headerUser.innerHTML = `${S.user.name || S.user.phone} | <a href="#" onclick="doLogout(event)" style="color:var(--rd);">خروج</a>`;
-            main.innerHTML = `
-                <div class="card" style="text-align:center;">
-                    <h2>پنل ${S.view === 'admin' ? 'مدیریت' : 'مشتری'}</h2>
-                    <p style="color:var(--gn)">خوش آمدید!</p>
-                    <button onclick="doLogout(event)" style="background:var(--rd); margin-top:20px;">خروج</button>
-                </div>`;
-        }
-    }
-
-    // ورود
-    window.openLogin = function(role) { S.role = role; S.view = 'login'; render(); }
-
-    window.doLogin = async function() {
-        const user = document.getElementById('username').value.trim();
-        const pass = document.getElementById('password').value;
-        const btn = document.getElementById('btn-login');
-        const msg = document.getElementById('login-msg');
-        
-        if (!user || !pass) { showMsg(msg, 'اطلاعات کامل نیست', 'err'); return; }
-        if (pass.length < 6) { showMsg(msg, 'رمز حداقل ۶ کاراکتر', 'err'); return; }
-
-        btn.innerText = 'در حال بررسی...';
-        btn.disabled = true;
-        msg.className = 'msg';
-
-        try {
-            let email = user + '@ahoura.com';
-            let { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password: pass });
-
-            if (authError && authError.message.includes('Invalid login credentials')) {
-                btn.innerText = 'در حال ثبت‌نام...';
-                let { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password: pass });
-                
-                if (signUpError) throw new Error(signUpError.message);
-                
-                await supabase.from('customers').insert([{
-                    auth_id: signUpData.user.id,
-                    username: user,
-                    phone: user,
-                    role: (S.role === 'admin' && user === '09120000000') ? 'admin' : 'customer',
-                    name: user
-                }]);
-                
-                authData = signUpData;
-                showMsg(msg, 'حساب ساخته شد!', 'ok');
-            } else if (authError) throw new Error(authError.message);
-
-            S.user = authData.user;
-            const { data: profile } = await supabase.from('customers').select('*').eq('auth_id', S.user.id).single();
-            
-            if (profile) {
-                S.user = { ...S.user, ...profile };
-                S.role = profile.role;
-            } else {
-                S.role = (S.role === 'admin') ? 'admin' : 'customer';
-            }
-            
-            S.view = (S.role === 'admin') ? 'admin' : 'customer';
-            render();
-
-        } catch (err) {
-            showMsg(msg, 'خطا: ' + err.message, 'err');
-            btn.innerText = 'ورود / ثبت‌نام';
-            btn.disabled = false;
-        }
-    }
-
-    window.doLogout = async function(e) {
-        if(e) e.preventDefault();
-        await supabase.auth.signOut();
-        S.view = 'choice';
-        render();
-    }
-
-    function showMsg(el, text, type) {
-        el.innerText = text;
-        el.className = 'msg ' + type;
-    }
-</script>
+    <header><div class="app-title">ابزارآلات اهورا</div><div id="header-user" style="color:var(--mu);"></div></header>
+    <main id="main-content"></main>
+    <script src="app.js"></script>
 </body>
 </html>
