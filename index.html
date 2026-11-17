@@ -2,212 +2,65 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-    <meta name="theme-color" content="#0f5e63">
-    <title>ابزارآلات اهورا</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root{
-            --bg:#0d1117; --card:#161b22; --tx:#e6edf3; --mu:#8b949e; 
-            --pr:#00f0d0; --c:#0f6a70; --bd:#30363d; --rd:#ff7b72; --gn:#3fb950;
-            --glow: 0 0 10px rgba(0,240,208,0.4), inset 0 0 10px rgba(0,240,208,0.1);
-            --fr:repeating-linear-gradient(90deg,rgba(0,240,208,.4) 0 2px,transparent 2px 6px,rgba(0,240,208,.2) 6px 8px,transparent 8px 14px);
-        }
-        *{box-sizing:border-box; font-family: Tahoma, sans-serif;}
-        body{margin:0; background:var(--bg); color:var(--tx); font-size:15px; line-height:1.7; padding-bottom:20px;
-             background-image: radial-gradient(circle at 50% 0%, rgba(0,240,208,0.05) 0%, transparent 50%);}
-        
-        header{position:relative; background:linear-gradient(180deg, #1a252f, var(--card)); color:#fff; padding:15px 20px; 
-               border-bottom:3px solid var(--pr); display:flex; justify-content:space-between; align-items:center;
-               box-shadow: 0 4px 15px rgba(0,240,208,0.2);}
-        header::after{content:''; position:absolute; inset-inline:0; bottom:-6px; height:6px; background:var(--fr);}
-        
-        .app-title{font-size:18px; font-weight:bold; text-shadow:0 0 8px rgba(0,240,208,0.6);}
-        
-        main{padding:20px 15px; max-width:600px; margin:auto;}
-        
-        .card{background:var(--card); border:1px solid var(--bd); border-top:3px solid var(--pr); 
-              border-radius:12px; padding:20px; margin-bottom:20px; box-shadow: var(--glow);}
-        
-        h2, h3 {text-align:center; color:var(--pr); margin-top:0; text-shadow:0 0 8px rgba(0,240,208,0.5);}
-        
-        input, select {width:100%; padding:12px; margin:8px 0; background:#0d1117; border:1px solid var(--bd); 
-                       border-radius:8px; color:var(--tx); font-size:15px; transition:0.3s;}
-        input:focus {outline:none; border-color:var(--pr); box-shadow:0 0 8px rgba(0,240,208,0.3);}
-        
-        button {width:100%; padding:14px; margin:10px 0; border:none; border-radius:8px; 
-                background:var(--c); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s; font-family:inherit;}
-        button:hover {background:var(--pr); color:#000; box-shadow:0 0 15px var(--pr);}
-        
-        button.sec {background:transparent; border:1px solid var(--pr); color:var(--pr);}
-        button.sec:hover {background:rgba(0,240,208,0.1); box-shadow:none;}
-        
-        .msg {padding:10px; border-radius:8px; text-align:center; margin-top:10px; display:none;}
-        .msg.err {display:block; background:rgba(255,123,114,0.1); border:1px solid var(--rd); color:var(--rd);}
-        .msg.ok {display:block; background:rgba(63,185,80,0.1); border:1px solid var(--gn); color:var(--gn);}
-        
-        .hidden {display:none !important;}
-    </style>
 </head>
-<body>
+<body style="background:#111; color:white; font-family:Tahoma; padding:20px; text-align:center;">
 
-<header id="main-header">
-    <div class="app-title">ابزارآلات اهورا</div>
-    <div id="header-user" style="font-size:12px; color:var(--mu);"></div>
-</header>
+    <h2 style="color:#00f0d0;">تست نهایی</h2>
+    
+    <div id="status" style="color:yellow; margin:20px 0;">در حال اتصال به دیتابیس...</div>
+    
+    <div id="login-box" style="display:none; max-width:300px; margin:auto;">
+        <input id="phone" placeholder="09120000000" style="width:100%; padding:10px; margin:5px 0; border-radius:5px; border:none;">
+        <input id="pass" placeholder="رمز عبور (123456)" type="password" style="width:100%; padding:10px; margin:5px 0; border-radius:5px; border:none;">
+        <button onclick="doLogin()" style="width:100%; padding:15px; background:#00f0d0; border:none; border-radius:5px; font-weight:bold; margin-top:10px;">ورود / ثبت‌نام</button>
+    </div>
+    
+    <div id="msg" style="margin-top:20px; font-weight:bold;"></div>
 
-<main id="main-content">
-    <!-- محتوا توسط جاوا اسکریپت لود می‌شود -->
-</main>
+    <script>
+        // تست لود شدن کتابخانه
+        if (typeof window.supabase === 'undefined') {
+            document.getElementById('status').innerText = "خطا: کتابخانه Supabase لود نشد!";
+            document.getElementById('status').style.color = "red";
+        } else {
+            document.getElementById('status').innerText = "دیتابیس متصل است. آماده تست.";
+            document.getElementById('status').style.color = "#3fb950";
+            document.getElementById('login-box').style.display = "block";
 
-<script>
-    const SUPABASE_URL = 'https://ickkglmeyhzoibskonxz.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f'; 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            const db = window.supabase.createClient('https://ickkglmeyhzoibskonxz.supabase.co', 'sb_publishable_n5G5KAAIgzSdz9A8S1IsDg_lmzIkq1f');
 
-    const S = { view: 'welcome', role: null, user: null };
-
-    // شروع برنامه
-    window.onload = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            S.user = session.user;
-            const { data: profile } = await supabase.from('customers').select('*').eq('auth_id', S.user.id).single();
-            if (profile) {
-                S.user = { ...S.user, ...profile };
-                S.role = profile.role;
-                S.view = (S.role === 'admin') ? 'admin' : 'customer';
-            }
-        }
-        render();
-    };
-
-    function render() {
-        const main = document.getElementById('main-content');
-        const headerUser = document.getElementById('header-user');
-        
-        if (S.view === 'welcome') {
-            headerUser.innerHTML = '';
-            main.innerHTML = `
-                <div class="card" style="text-align:center; margin-top:50px;">
-                    <h2>پخش قفل و یراق اهورا</h2>
-                    <p style="color:var(--mu); font-size:16px; line-height:2;">از اعتماد و همراهی شما سپاسگزاریم؛<br>امید است این خرید آغاز ارتباطی طولانی‌مدت باشد.</p>
-                    <button onclick="S.view='choice'; render()">ادامه</button>
-                </div>
-            `;
-        }
-        else if (S.view === 'choice') {
-            headerUser.innerHTML = '';
-            main.innerHTML = `
-                <div class="card" style="text-align:center;">
-                    <h2>خوش آمدید</h2>
-                    <p style="color:var(--mu); margin-bottom:20px;">برای ادامه نوع ورود خود را انتخاب کنید.</p>
-                    <button onclick="openLogin('admin')">ورود / ثبت‌نام مدیر</button>
-                    <button class="sec" onclick="openLogin('customer')">ورود / ثبت‌نام مشتری</button>
-                </div>
-            `;
-        } 
-        else if (S.view === 'login') {
-            main.innerHTML = `
-                <div class="card">
-                    <h2>${S.role === 'admin' ? 'مدیر' : 'مشتری'}</h2>
-                    <input id="username" placeholder="نام کاربری (شماره موبایل)" type="tel">
-                    <input id="password" placeholder="رمز عبور" type="password">
-                    <button onclick="doLogin()" id="btn-login">ورود / ثبت‌نام خودکار</button>
-                    <div id="login-msg" class="msg"></div>
-                    <button class="sec" onclick="S.view='choice'; render()" style="margin-top:15px;">بازگشت</button>
-                </div>
-            `;
-        }
-        else if (S.view === 'admin' || S.view === 'customer') {
-            headerUser.innerHTML = `${S.user.name || S.user.phone} | <a href="#" onclick="doLogout(event)" style="color:var(--rd); text-decoration:none;">خروج</a>`;
-            main.innerHTML = `
-                <div class="card" style="text-align:center;">
-                    <h2>پنل ${S.view === 'admin' ? 'مدیریت' : 'مشتری'}</h2>
-                    <p style="color:var(--gn)">شما با موفقیت وارد شدید.</p>
-                    <p style="color:var(--mu)">(بخش‌های بعدی در حال ساخت هستند...)</p>
-                    <button onclick="doLogout(event)" style="background:var(--rd); margin-top:20px;">خروج از حساب</button>
-                </div>
-            `;
-        }
-    }
-
-    function openLogin(role) {
-        S.role = role;
-        S.view = 'login';
-        render();
-    }
-
-    async function doLogin() {
-        const user = document.getElementById('username').value.trim();
-        const pass = document.getElementById('password').value;
-        const btn = document.getElementById('btn-login');
-        const msg = document.getElementById('login-msg');
-        
-        if (!user || !pass) { showMsg(msg, 'لطفا اطلاعات را کامل وارد کنید', 'err'); return; }
-        if (pass.length < 6) { showMsg(msg, 'رمز عبور باید حداقل ۶ کاراکتر باشد', 'err'); return; }
-
-        btn.innerText = 'در حال بررسی...';
-        btn.disabled = true;
-        msg.className = 'msg';
-
-        try {
-            let email = user.includes('@') ? user : user + '@ahoura.com';
-            
-            let { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password: pass });
-
-            if (authError && authError.message.includes('Invalid login credentials')) {
-                btn.innerText = 'در حال ثبت‌نام...';
-                let { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password: pass });
+            window.doLogin = async function() {
+                const user = document.getElementById('phone').value;
+                const pass = document.getElementById('pass').value;
+                const msg = document.getElementById('msg');
                 
-                if (signUpError) throw new Error(signUpError.message);
+                msg.innerText = "در حال ارسال...";
+                msg.style.color = "yellow";
                 
-                await supabase.from('customers').insert([{
-                    auth_id: signUpData.user.id,
-                    username: user,
-                    phone: user,
-                    role: (S.role === 'admin' && user === '09120000000') ? 'admin' : 'customer',
-                    name: user
-                }]);
+                let email = user + '@ahoura.com';
+                let { data, error } = await db.auth.signInWithPassword({ email, password: pass });
                 
-                authData = signUpData;
-                showMsg(msg, 'حساب شما ساخته شد و وارد شدید.', 'ok');
-            } else if (authError) {
-                throw new Error(authError.message);
-            }
-
-            S.user = authData.user;
-            const { data: profile } = await supabase.from('customers').select('*').eq('auth_id', S.user.id).single();
-            
-            if (profile) {
-                S.user = { ...S.user, ...profile };
-                S.role = profile.role;
-            } else {
-                S.role = (S.role === 'admin') ? 'admin' : 'customer';
-            }
-            
-            S.view = (S.role === 'admin') ? 'admin' : 'customer';
-            render();
-
-        } catch (err) {
-            showMsg(msg, 'خطا: ' + err.message, 'err');
-            btn.innerText = 'ورود / ثبت‌نام خودکار';
-            btn.disabled = false;
+                if (error && error.message.includes('Invalid login credentials')) {
+                    msg.innerText = "در حال ساخت حساب...";
+                    let { data: signUpData, error: signUpError } = await db.auth.signUp({ email, password: pass });
+                    if (signUpError) {
+                        msg.innerText = "خطا: " + signUpError.message;
+                        msg.style.color = "red";
+                    } else {
+                        msg.innerText = "حساب ساخته شد و وارد شدید!";
+                        msg.style.color = "#3fb950";
+                    }
+                } else if (error) {
+                    msg.innerText = "خطا: " + error.message;
+                    msg.style.color = "red";
+                } else {
+                    msg.innerText = "ورود موفق!";
+                    msg.style.color = "#3fb950";
+                }
+            };
         }
-    }
-
-    async function doLogout(e) {
-        if(e) e.preventDefault();
-        await supabase.auth.signOut();
-        S.view = 'choice';
-        S.user = null;
-        render();
-    }
-
-    function showMsg(el, text, type) {
-        el.innerText = text;
-        el.className = 'msg ' + type;
-    }
-</script>
+    </script>
 </body>
 </html>
