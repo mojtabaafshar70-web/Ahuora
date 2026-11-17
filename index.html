@@ -211,7 +211,25 @@ window.fetch = async (url, options = {}) => {
             const prods = data.map(p => ({ ...p, sell_price: p.price, final_price: p.price, buy_price: p.buy_price || 0, discount: 0, active: 1 }));
             return new Response(JSON.stringify(prods), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-
+// ۶.۵. دریافت اطلاعات کاربر فعلی
+if (path === '/api/me') {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return new Response(JSON.stringify({ role: null }), { status: 200 });
+    
+    const { data: profile } = await supabaseClient.from('customers').select('*').eq('auth_id', session.user.id).single();
+    if (profile) {
+        return new Response(JSON.stringify({
+            role: profile.role,
+            username: profile.username,
+            name: profile.name,
+            phone: profile.phone,
+            city: profile.city,
+            address: profile.address
+        }), { status: 200 });
+    } else {
+        return new Response(JSON.stringify({ role: 'admin' }), { status: 200 });
+    }
+}
         // ۷. ثبت محصول جدید
         if (path === '/api/admin/products' && method === 'POST') {
             const { error } = await supabaseClient.from('products').insert([{
